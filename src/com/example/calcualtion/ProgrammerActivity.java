@@ -202,19 +202,14 @@ implements OnClickListener, OnCheckedChangeListener {
 			op = -1;
 			break;
 		case R.id.btnPBack:
-		}
-		
-		input.setText(exp.toString());
-	}
-	
-	private boolean isOperator(String str) {
-		for (int i = 0; i < opSet.length; i++) {
-			if (opSet[i].equals(str)) {
-				return true;
+			if (op == 4 || op == 5) {
+				tmp = tmp.substring(0, tmp.length() - 2);
+			} else {
+				tmp = tmp.substring(0, tmp.length() - 1);
 			}
 		}
 		
-		return false;
+		input.setText(exp.toString());
 	}
 
 	private void processOperator(int i) {
@@ -308,7 +303,12 @@ implements OnClickListener, OnCheckedChangeListener {
 	public static String decimalToNBase(int num, int N) {
 		Stack<Character> stack = new Stack<Character>();
 		String nBaseNum = new String();
-
+		boolean minusFlag = false;
+		
+		if (num < 0) {
+			num = -num;
+			minusFlag = true;
+		}
 		while (num != 0) {
 			stack.push(numToChar(num % N, N));
 			num /= N;
@@ -317,6 +317,11 @@ implements OnClickListener, OnCheckedChangeListener {
 		while (!stack.isEmpty()) {
 			nBaseNum += stack.pop();
 		}
+		
+		if (minusFlag) {
+			nBaseNum = "-" + nBaseNum;
+		}
+		
 		return nBaseNum;
 	}
 
