@@ -1,29 +1,38 @@
 package com.example.calcualtion;
 
-import android.app.Activity;
-import android.os.Bundle;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.EditText;
-
 import java.util.Stack;
 
-import com.example.calcualtion.R;
+import android.os.Bundle;
+import android.app.Activity;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.CheckBox;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 
-
-public class ProgrammerActivity extends Activity implements OnClickListener {	
+public class ProgrammerActivity extends Activity 
+implements OnClickListener, OnCheckedChangeListener {
+	
 	static int ERROR = -1;
 	
+	int[] radix = { 2, 8, 10, 16 };
 	String[] opSet = { "+", "-", "X", "/", "<<", ">>", "&", "|", "=" };
-	int[] btnIdSet = { R.id.btn0, R.id.btn1, R.id.btn2, R.id.btn3, R.id.btn4, R.id.btn5, 
-			R.id.btn6, R.id.btn7, R.id.btn8, R.id.btn9, R.id.btnA, R.id.btnB, R.id.btnC, 
-			R.id.btnD, R.id.btnE, R.id.btnF, R.id.btnAdd, R.id.btnMinus, R.id.btnMultiply,
-			R.id.btnDivide, R.id.btnEqual, R.id.btnLsh, R.id.btnRsh, R.id.btnAnd, R.id.btnOr
+	int[] btnIdSet = { R.id.btnP0, R.id.btnP1, R.id.btnP2, R.id.btnP3, R.id.btnP4, 
+			R.id.btnP5, R.id.btnP6, R.id.btnP7, R.id.btnP8, R.id.btnP9, R.id.btnPA, 
+			R.id.btnPB, R.id.btnPC, R.id.btnPD, R.id.btnPE, R.id.btnPF, R.id.btnPAdd,
+			R.id.btnPMinus, R.id.btnPMultiply, R.id.btnPDivide, R.id.btnPLsh, 
+			R.id.btnPRsh, R.id.btnPAnd, R.id.btnPOr, R.id.btnPEqual, R.id.btnPClear,
 	};
+	int[] cbIdSet = { R.id.cbPBin, R.id.cbPOct, R.id.cbPDec, R.id.cbPHex };
+	int[] tvIdSet = { R.id.tvPBin, R.id.tvPOct, R.id.tvPDec, R.id.tvPHex };
 	
 	EditText input;
 	Button[] btnSet = new Button[btnIdSet.length];
+	CheckBox[] cbSet = new CheckBox[cbIdSet.length];
+	TextView[] tvSet = new TextView[tvIdSet.length];
 	
 	int op = -1;
 	int N = 10;
@@ -36,105 +45,210 @@ public class ProgrammerActivity extends Activity implements OnClickListener {
 	
 	String tmp = new String();
 	String exp;
-	
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		// TODO Auto-generated method stub
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.programmer_activity);
-			
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        
         for (int i = 0; i < btnIdSet.length; i++) {
         	btnSet[i] = (Button)findViewById(btnIdSet[i]);
         	btnSet[i].setOnClickListener(this);
         }
         
-        input = (EditText)findViewById(R.id.input);  
+        for (int i = 0; i < cbIdSet.length; i++) {
+        	cbSet[i] = (CheckBox)findViewById(cbIdSet[i]);
+        	cbSet[i].setOnCheckedChangeListener(this);
+        }
+        
+        for (int i = 0; i < tvIdSet.length; i++) {
+        	tvSet[i] = (TextView)findViewById(tvIdSet[i]);
+        }
+        
+        input = (EditText)findViewById(R.id.etPInput); 
+        exp = input.getText().toString();
+        
+        setButtonEnable(N);
+        cbSet[2].setChecked(true);	
+    }
+
+	@Override
+	public void onCheckedChanged(CompoundButton button, boolean isChecked) {
+		// TODO Auto-generated method stub
+		if (isChecked) {
+			for (int i = 0; i < cbSet.length; i++) {
+				if (cbIdSet[i] == button.getId()) {
+					cbSet[i].setChecked(true);
+					switch (i) {
+					case 0:
+						N = 2;
+						break;
+					case 1:
+						N = 8;
+						break;
+					case 2:
+						N = 10;
+						break;
+					case 3:
+						N = 16;
+						break;
+					}
+					setButtonEnable(N);
+				} else {
+					cbSet[i].setChecked(false);
+				}
+			}
+		}
 	}
-	
+
+	private void setButtonEnable(int n) {
+		// TODO Auto-generated method stub
+		
+		switch (n) {
+		case 2:
+			for (int i = 0; i < 2; i++) {
+				btnSet[i].setEnabled(true);
+			}
+			for (int i = 2; i < 16; i++) {
+				btnSet[i].setEnabled(false);
+			}
+			break;
+		case 8:
+			for (int i = 0; i < 9; i++) {
+				btnSet[i].setEnabled(true);
+			}
+			for (int i = 9; i < 16; i++) {
+				btnSet[i].setEnabled(false);
+			}
+			break;
+		case 10:
+			for (int i = 0; i < 10; i++) {
+				btnSet[i].setEnabled(true);
+			}
+			for (int i = 10; i <16; i++) {
+				btnSet[i].setEnabled(false);
+			}
+			break;
+		case 16:
+			for (int i = 0; i < 16; i++) {
+				btnSet[i].setEnabled(true);
+			}
+			break;
+		default:
+			for (int i = 0; i < 16; i++) {
+				btnSet[i].setEnabled(true);
+			}
+			break;
+		}
+	}
 
 	@Override
 	public void onClick(View v) {
 		// TODO Auto-generated method stub
 		
-		exp = input.getText().toString();
-		
 		switch (v.getId()) {
-		case R.id.btn0:
-		case R.id.btn1:
-		case R.id.btn2:
-		case R.id.btn3:
-		case R.id.btn4:
-		case R.id.btn5:
-		case R.id.btn6:
-		case R.id.btn7:
-		case R.id.btn8:
-		case R.id.btn9:
+		case R.id.btnP0:
+		case R.id.btnP1:
+		case R.id.btnP2:
+		case R.id.btnP3:
+		case R.id.btnP4:
+		case R.id.btnP5:
+		case R.id.btnP6:
+		case R.id.btnP7:
+		case R.id.btnP8:
+		case R.id.btnP9:
+		case R.id.btnPA:
+		case R.id.btnPB:
+		case R.id.btnPC:
+		case R.id.btnPD:
+		case R.id.btnPE:
+		case R.id.btnPF:
 			tmp += ((Button)v).getText().toString();
 			exp += ((Button)v).getText().toString();
 			break;
-		case R.id.btnAdd:
+		case R.id.btnPAdd:
 			processOperator(0);
 			break;
-		case R.id.btnMinus:
+		case R.id.btnPMinus:
 			processOperator(1);
 			break;
-		case R.id.btnMultiply:
+		case R.id.btnPMultiply:
 			processOperator(2);
 			break;
-		case R.id.btnDivide:
+		case R.id.btnPDivide:
 			processOperator(3);
 			break;
-		case R.id.btnLsh:
+		case R.id.btnPLsh:
 			processOperator(4);
 			break;
-		case R.id.btnRsh:
+		case R.id.btnPRsh:
 			processOperator(5);
 			break;
-		case R.id.btnAnd:
+		case R.id.btnPAnd:
 			processOperator(6);
 			break;
-		case R.id.btnOr:
+		case R.id.btnPOr:
 			processOperator(7);
 			break;
-		case R.id.btnEqual:
+		case R.id.btnPEqual:
 			processOperator(8);
 			break;
+		case R.id.btnPClear:
+			leftNum = 0;
+			rightNum = 0;
+			tmp = "";
+			exp = "";
+			op = -1;
+			break;
+		case R.id.btnPBack:
 		}
 		
 		input.setText(exp.toString());
 	}
 	
-	private void processOperator(int i) {
-		exp = input.getText().toString();
+	private boolean isOperator(String str) {
+		for (int i = 0; i < opSet.length; i++) {
+			if (opSet[i].equals(str)) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
 
+	private void processOperator(int i) {
 		if (leftNum == 0) {
 			leftNum = nBaseToDecimal(tmp, N);
+			setRadixOutput(leftNum);
 			tmp = "";
 		} else {
 			rightNum = nBaseToDecimal(tmp, N);
+			setRadixOutput(rightNum);
 			tmp = "";
 		}
-		
-		if (i == 8) {
-			if (leftNum != 0 && rightNum != 0) {
+	
+		if (i == 8) {		
+			if (leftNum != 0 && rightNum != 0) {	
 				res = calculate(op);
 				exp = String.valueOf(res);
 				leftNum = res;
+				setRadixOutput(res);
 				rightNum = 0;
 				tmp = "";
 				op = -1;
-				return;
 			}
-		}
-		else if (op == -1) {				
+			return;
+		} else if (op == -1) {				
 			exp += opSet[i];
 		} else {
 			if (rightNum == 0) {
 				exp = exp.substring(0, exp.length() - 1) + opSet[i];	
 			} else {
-				System.out.println(leftNum);
-				System.out.println(rightNum);
+//				System.out.println(leftNum);
+//				System.out.println(rightNum);
 				res = calculate(op);
+				setRadixOutput(res);
 				exp = String.valueOf(res);
 				exp += opSet[i];
 				leftNum = res;
@@ -143,6 +257,12 @@ public class ProgrammerActivity extends Activity implements OnClickListener {
 			}
 		}
 		op = i;
+	}
+
+	private void setRadixOutput(int num) {
+		for (int i = 0; i < radix.length; i++) {
+			tvSet[i].setText(decimalToNBase(num, radix[i]));
+		}
 	}
 
 	private int calculate(int op) {		
@@ -188,7 +308,7 @@ public class ProgrammerActivity extends Activity implements OnClickListener {
 	public static String decimalToNBase(int num, int N) {
 		Stack<Character> stack = new Stack<Character>();
 		String nBaseNum = new String();
-		
+
 		while (num != 0) {
 			stack.push(numToChar(num % N, N));
 			num /= N;
